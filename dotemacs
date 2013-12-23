@@ -1,0 +1,48 @@
+;; .emacs
+
+;;; uncomment this line to disable loading of "default.el" at startup
+;;(setq inhibit-default-init t)
+
+;; turn on font-lock mode
+(when (fboundp 'global-font-lock-mode)
+  (global-font-lock-mode t))
+
+;; enable visual feedback on selections
+;(setq transient-mark-mode t)
+
+;; default to better frame titles
+;;(setq frame-title-format
+;;      (concat  "%b - emacs@" system-name))
+
+(setq-default tab-width 4)
+(setq-default indent-tabs-mode nil)
+(setq tab-stop-lit
+  '(4 8 12 16 20 24 28 32 36 40 44 48 52 56 60 64 68 72 76 80))
+
+;;(normal-erase-is-backspace-mode 1)
+;;(define-key global-map "\C-x\C-u" 'undo)
+
+(when (boundp 'show-trailing-whitespace)
+  (setq-default show-trailing-whitespace t))
+(setq make-backup-files nil)
+;;(tool-bar-mode -1)
+;;(menu-bar-mode -1)
+
+;;(add-hook 'c-mode-hook '(lambda() (c-set-style "cc-mode")))
+(add-hook 'c-mode-hook '(lambda() (c-set-style "gnu")))
+(add-hook 'c++-mode-hook '(lambda() (c-set-style "cc-mode")))
+
+;;scheme setting
+(setq scheme-program-name "gosh -i")
+(autoload 'scheme-mode "cmuscheme" "Major mode for Scheme." t)
+(autoload 'run-scheme "cmuscheme" "Run an inferior Scheme process." t)
+
+(defun scheme-other-window ()
+  "Run scheme on other window"
+  (interactive)
+  (switch-to-buffer-other-window
+   (get-buffer-create "*scheme*"))
+  (run-scheme scheme-program-name))
+
+(define-key global-map
+  "\C-cs" 'scheme-other-window)
