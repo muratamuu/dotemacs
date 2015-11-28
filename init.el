@@ -59,3 +59,9 @@
 ;; 末尾のホワイトスペースを目立たせる
 (when (boundp 'show-trailing-whitespace)
   (setq-default show-trailing-whitespace t))
+
+;; "C-t"でウィンドウを切り替える。初期値はtranspose-chars
+(define-key global-map (kbd "C-t") 'other-window)
+
+;; 折り返しトグルコマンド
+(define-key global-map (kbd "C-c l") 'toggle-truncate-lines)
