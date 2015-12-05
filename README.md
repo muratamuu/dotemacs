@@ -1,4 +1,15 @@
-# emacs コマンドメモ
+# .emacs.d ディレクトリ構成
+```
+.emacs.d/
+  |- init.el
+  |- backups/
+  |- conf/
+  |- elisp/
+  |- elpa/
+  ¥- public_repos/
+```
+
+# emacs コマンド
 - S式の末尾でS式を評価する  
 `C−x C-e`
 
@@ -103,3 +114,7 @@
 
 - 行入力  
 `M-g M-g
+
+### その他
+- バイトコンパイル  
+`M-x byte-compile-file RET`
