@@ -118,3 +118,6 @@
 ### その他
 - バイトコンパイル  
 `M-x byte-compile-file RET`
+
+- ELPAのパッケージ一覧  
+`M-x list-packages`

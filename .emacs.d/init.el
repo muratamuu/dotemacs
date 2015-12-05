@@ -26,12 +26,99 @@
 (add-to-list 'package-archives
 	     '("melpa" . "http://melpa.milkbox.net/packages/"))
 
-;; Marmaladeを追加
-(add-to-list 'package-archives
-             '("marmalade" . "http://marmalade-repo.org/packages/"))
+;; package.elの設定
+(when (require 'package nil t)
+  ;; パッケージリポジトリにMarmaladeと開発者運営のELPAを追加
+  (add-to-list 'package-archives
+               '("marmalade" . "http://marmalade-repo.org/packages/"))
+  (add-to-list 'package-archives '("ELPA", "http://tromey.com/elpa/"))
+  ;; 初期化
+  (package-initialize))
 
-;; 初期化
-(package-initialize)
+;; auto-installの設定
+(when (require 'auto-install nil t)
+  ;; インストールディレクトリを設定する
+  (setq auto-install-directory "~/.emacs.d/elisp/")
+  ;; EmacsWikiに登録されているelispの名前を取得する
+  (auto-install-update-emacswiki-package-name t)
+  ;; 必要であればプロキシの設定を行う
+  ;; (setq url-proxy-services '(("http", . "localhost:8339")))
+  ;; install-elispの関数を利用可能にする
+  (auto-install-compatibility-setup))
+
+;; auto-installでインストールしたelispのurl
+;; M-x install-elisp RET or 以下のS式を*scratch*で評価(C-j)
+;; (install-elisp "http://www.emacswiki.org/emacs/download/redo+.el")
+
+;; redo+の設定
+(when (require 'redo+ nil t)
+  ;; C-'にリドゥを割り当てる
+  ;; (global-set-key (kbd "C-'") 'redo)
+  ;; 日本語キーボードのばあいC-.の方がいいかも
+  (global-set-key (kbd "C-.") 'redo)
+  )
+
+;; anythingの設定
+;; (auto-install-batch "anything")
+(when (require 'anything nil t)
+  (setq
+   ;; 候補を表示するまでの時間。デフォルトは0.5
+   anything-idle-delay 0.3
+   ;; タイプして再描画するまでの時間。デフォルトは0.1
+   anything-input-idle-delay 0.2
+   ;; 候補の最大表示数。デフォルトは50
+   anything-candidate-number-limit 100
+   ;; 候補が多いときに体感速度を早くする
+   anything-quick-update t
+   ;; 候補選択ショートカットをアルファベットに
+   anything-enable-shortcuts 'alphabet)
+
+  (when (require 'anything-config nil t)
+    ;; root権限でアクションを実行するときのコマンド
+    (setq anything-su-or-sudo "sudo"))
+
+  (require 'anything-match-plugin nil t)
+
+  (when (and (executable-find "cmigemo")
+             (require 'migemo nil t))
+    (require 'anything-migemo nil t))
+
+  (when (require 'anything-complete nil t)
+    ;; lispシンボルの補完候補の再検索時間
+    (anything-lisp-complete-symbol-set-timer 150))
+
+  (require 'anything-show-completion nil t)
+
+  (when (require 'auto-install nil t)
+    (require 'anything-auto-install nil t))
+
+  (when (require 'descbinds-anything nil t)
+    ;; describe-bindingsをAnythingに置き換える
+    (descbinds-anything-install))
+
+  (define-key global-map (kbd "M-y") 'anything-show-kill-ring))
+
+;; 要color-moccur.el (現在未インストール)
+;; http://svn.coderepos.org/share/lang/elisp/anything-c-moccur/trunk/anything-c-moccur.el
+(when (require 'anything-c-moccur nil t)
+  (setq
+   ;; anything-c-moccur用 `anything-idle-delay'
+   anything-c-moccur-anything-idle-delay 0.1
+   ;; バッファの情報をハイライトする
+   anything-c-moccur-higligt-info-line-flag t
+   ;; 現在選択中の候補の位置を他のwindowに表示する
+   anything-c-moccur-enable-auto-look-flag t
+   ;; 起動時にポイントの位置の単語を初期パターンにする
+   anything-c-moccur-enable-initial-pattern t)
+  ;; C-M-oにanything-c-moccur-occur-by-moccurを割り当てる
+  (global-set-key (kbd "C-M-o") 'anything-c-moccur-occur-by-moccur))
+
+;; auto-completeの設定
+(when (require 'auto-complete-config nil t)
+  (add-to-list 'ac-dictionary-directories
+               "~/.emacs.d/elisp/ac-dict")
+  (define-key ac-mode-map (kbd "M-TAB") 'auto-complete)
+  (ac-config-default))
 
 ;; 行番号表示
 ;;(global-linum-mode t)
