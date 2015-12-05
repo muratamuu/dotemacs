@@ -46,6 +46,21 @@
 ;;(when (memq window-system '(mac ns))
 ;;  (exec-path-from-shell-initialize))
 
+;; 文字コードを指定する
+(set-language-environment "Japanese")
+(prefer-coding-system 'utf-8)
+
+;; Mac OS Xの場合のファイル名の設定
+(when (eq system-type 'darwin)
+  (require 'ucs-normalize)
+  (set-file-name-coding-system 'utf-8-hfs)
+  (setq locale-coding-system 'utf-8-hfs))
+
+;; Windowsの場合のファイル名の設定
+(when (eq window-system 'w32)
+  (set-file-name-coding-system 'cp932)
+  (setq locate-coding-system 'cp932))
+
 ;; 英語フォント
 ;;(set-face-attribute 'default nil
 ;;  :family "Menlo" ;; font
@@ -88,11 +103,25 @@
 (when (boundp 'show-trailing-whitespace)
   (setq-default show-trailing-whitespace t))
 
+;; "C-m"にnewline-and-indentを割り当てる
+;; global-set-key = define-key global-map
+(global-set-key (kbd "C-m") 'newline-and-indent)
+
+;; 入力されるシーケンスを置き換える
+;; ?\C-?はDELのシーケンス
+(keyboard-translate ?\C-h ?\C-?)
+
+;; 別のキーバインドにヘルプを割り当てる
+(define-key global-map (kbd "C-x ?") 'help-command)
+
 ;; "C-t"でウィンドウを切り替える。初期値はtranspose-chars
 (define-key global-map (kbd "C-t") 'other-window)
 
 ;; 折り返しトグルコマンド
 (define-key global-map (kbd "C-c l") 'toggle-truncate-lines)
+
+;; リージョンの背景色を変更
+;;(set-face-background 'region "darkgreen")
 
 ;; 現在行のハイライト
 (defface my-hl-line-face
@@ -113,7 +142,7 @@
 ;; parenのスタイル: expressionは括弧内も強調表示
 (setq show-paren-style 'expression)
 ;; フェイスを変更する
-(set-face-background 'show-paren-match-face nil)
+;;(set-face-background 'show-paren-match-face nil)
 (set-face-underline-p 'show-paren-match-face "yellow")
 
 ;; カラム番号もモードラインに表示する
@@ -125,3 +154,23 @@
 ;; egg読み込み
 (when (executable-find "git")
   (require 'egg nil t))
+
+;; C/C++のスタイル
+(add-hook 'c-mode-common-hook
+          (lambda ()
+            (c-set-style "gnu")))
+
+;; ファイルが#!から始まる場合、+xをつけて保存する
+(add-hook 'after-save-hook
+          'executable-make-buffer-file-executable-if-script-p)
+
+;; emacs-lisp-mode用の関数を定義
+(defun elisp-mode-hooks ()
+  "lisp-mode-hooks"
+  (when (require 'eldoc nil t)
+    (setq eldoc-idle-delay 0.2)
+    (setq eldoc-echo-area-use-multiline-p t)
+    (turn-on-eldoc-mode)))
+
+;; emacs-lisp-modeのフックをセット
+(add-hook 'emacs-lisp-mode-hook 'elisp-mode-hooks)
