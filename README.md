@@ -4,9 +4,14 @@
 $ sudo apt-get install gnome-panel
 ```
 
-- ショートカット  
+- ショートカット(ターミナル)  
 ```
 $ emacsclient -t
+```
+
+- ショートカット(GUI)  
+```
+$ emacsclient -c
 ```
 
 # .emacs.d ディレクトリ構成
