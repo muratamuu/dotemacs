@@ -1,3 +1,19 @@
+# ubuntuの場合
+- Metaキーが使えない場合、以下をインストールする  
+```
+$ sudo apt-get install gnome-panel
+```
+
+- ショートカット(ターミナル)  
+```
+$ emacsclient -t
+```
+
+- ショートカット(GUI)  
+```
+$ emacsclient -c
+```
+
 # .emacs.d ディレクトリ構成
 ```
 .emacs.d/
@@ -185,7 +201,14 @@ $ git clone git://github.com/byplayer/egg.git
 `C-M-v` `C-M-S-v`
 
 - 行入力  
-`M-g M-g
+`M-g M-g`
+
+### 文字サイズ
+- 変更  
+`C-x C-+` `C-x C--` `C-x C-0`
+
+- 一気に変更  
+`C-u 5 M-x text-scale-adjust`
 
 ### anything
 - バッファ、ファイル切り替え  
