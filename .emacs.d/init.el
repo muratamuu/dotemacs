@@ -291,6 +291,9 @@
 ;; 折り返しトグルコマンド
 (define-key global-map (kbd "C-c l") 'toggle-truncate-lines)
 
+;; コンパイルコマンド
+(define-key global-map (kbd "C-c c") 'compile)
+
 ;; リージョンの背景色を変更
 ;;(set-face-background 'region "darkgreen")
 
