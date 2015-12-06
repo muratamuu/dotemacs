@@ -202,7 +202,7 @@
             "*anything for document*"))
 
 ;; Command+dにanything-for-documentを割り当て
-;; (define-key global-map (kbd "s-d") 'anything-for-document)
+(define-key global-map (kbd "C-c d") 'anything-for-document)
 
 ;; 行番号表示
 ;;(global-linum-mode t)
