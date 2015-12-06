@@ -120,6 +120,90 @@
   (define-key ac-mode-map (kbd "M-TAB") 'auto-complete)
   (ac-config-default))
 
+;; color-moccurの設定
+;; M-x auto-install-from-emacswiki RET color-moccur.el RET
+(when (require 'color-moccur nil t)
+  ;; M-oにoccur-by-moccurを割り当て
+  (define-key global-map (kbd "M-o") 'occur-by-moccur)
+  ;; スペース区切りでAND検索
+  (setq moccur-split-word t)
+  ;; ディレクトリ検索のとき除外するファイル
+  (add-to-list 'dmoccur-exclusion-mask "\\.DS_Store")
+  (add-to-list 'dmoccur-exclusion-mask "^#.+#$")
+  ;; Migemoを利用できる環境であればMigemoを使う
+  (when (and (executable-find "cmigemo")
+             (require 'migemo nil t))
+    (setq moccur-use-migemo t))
+  ;; moccur-edit.el
+  (require 'moccur-edit nil t))
+
+;; wgrepの設定 ELPA *grep* でC-c C-pで編集可能 C-c C-kで破棄 C-c C-cで反映
+(require 'wgrep nil t)
+
+;; undohistの設定
+;; M-x install-elisp RET http://cx4a.org/pub/undohist.el
+(when (require 'undohist nil t)
+  (undohist-initialize))
+
+;; undotreeの設定
+;; M-x package-install RET undo-tree RET
+(when (require 'undo-tree nil t)
+  (global-undo-tree-mode))
+
+;; point-undoの設定
+;; M-x auto-install-from-emacswiki RET point-undo.el RET
+(when (require 'point-undo nil t)
+  (define-key global-map (kbd "M-[") 'point-undo)
+  (define-key global-map (kbd "M-]") 'point-redo))
+
+;; Subversionフロントエンドpsvnの設定
+;; M-x install-elisp RET http://www.xsteve.at/prg/emacs/psvn.el
+(when (executable-find "svn")
+  (setq svn-status-verbose nil)
+  (autoload 'svn-status "psvn" "Run `svn status'." t))
+
+;; Gitフロントエンドeggの設定
+;; M-x install-elisp RET https://raw.github.com/byplayer/egg/master/egg.el
+;; M-x install-elisp RET https://raw.github.com/byplayer/egg/master/egg-grep.el
+(when (executable-find "git")
+  (require 'egg nil t))
+
+;; multi-termの設定
+;; M-x package-install RET multi-term RET
+(when (require 'multi-term nil t)
+  ;; 使用するシェルを設定
+  ;;(setq multi-term-program "/usr/local/bin/zsh"))
+  (setq multi-term-program "/bin/bash"))
+
+;; womanキャッシュを作成
+(setq woman-cache-filename "~/.emacs.d/.wmncach.el")
+
+;; manパスを設定
+(setq woman-manpath '("/usr/share/man"
+                      "/usr/local/share/man"
+                      "/usr/local/share/man/ja"))
+
+;; anything-for-document用のソースを定義
+(setq anything-for-document-sources
+      (list anything-c-source-man-pages
+            anything-c-source-info-cl
+            anything-c-source-info-pages
+            anything-c-source-info-elisp
+            anything-c-source-apropos-emacs-commands
+            anything-c-source-apropos-emacs-functions
+            anything-c-source-apropos-emacs-variables))
+
+;; anything-for-documentコマンドを生成
+(defun anything-for-document ()
+  "Preconfigured `anything' for anything-for-document."
+  (interactive)
+  (anything anything-for-document-sources
+            (thing-at-point 'symbol) nil nil nil
+            "*anything for document*"))
+
+;; Command+dにanything-for-documentを割り当て
+;; (define-key global-map (kbd "s-d") 'anything-for-document)
+
 ;; 行番号表示
 ;;(global-linum-mode t)
 
@@ -238,6 +322,11 @@
 ;; ファイルサイズをモードラインに表示する
 (size-indication-mode t)
 
+;; cua-modeの設定
+(cua-mode t)
+(setq cua-enable-cua-keys nil) ; CUAキーバインドを無効にする
+(define-key global-map (kbd "M-RET") 'cua-set-rectangle-mark)
+
 ;; egg読み込み
 (when (executable-find "git")
   (require 'egg nil t))
@@ -246,6 +335,67 @@
 (add-hook 'c-mode-common-hook
           (lambda ()
             (c-set-style "gnu")))
+
+;; Makefileの種類を定義
+(defvar flymake-makefile-filenames
+  '("Makefile" "makefile" "GNUmakefile")
+  "File names for make.")
+
+;; Makefileがなければコマンドを直接利用するコマンドラインを生成
+(defun flymake-get-make-gcc-cmdline (source base-dir)
+  (let (found)
+    (dolist (makefile flymake-makefile-filenames)
+      (if (file-readable-p (concat base-dir "/" makefile))
+          (setq found t)))
+    (if found
+        (list "make"
+              (list "-s"
+                    "-C"
+                    base-dir
+                    (concat "CHK_SOURCES=" source)
+                    "SYNTAX_CHECK_MODE=1"
+                    "check-syntax"))
+      (list (if (string= (file-name-extension source) "c") "gcc" "g++")
+            (list "-o"
+                  "/dev/null"
+                  "-fsyntax-only"
+                  "-Wall"
+                  source)))))
+
+;; Flymake初期化関数の生成
+(defun flymake-simple-make-gcc-init-impl
+    (create-temp-f use-relative-base-dir
+                   use-relative-source build-file-name get-cmdline-f)
+  "Create syntax check command line for a directly checked source file. Use CREATE-TEMP-F for creating temp copy."
+  (let* ((args nil)
+         (source-file-name buffer-file-name)
+         (buildfile-dir (file-name-directory source-file-name)))
+    (if buildfile-dir
+        (let* ((temp-source-file-name
+                (flymake-init-create-temp-buffer-copy create-temp-f)))
+          (setq args
+                (flymake-get-syntax-check-program-args
+                 temp-source-file-name
+                 buildfile-dir
+                 use-relative-base-dir
+                 use-relative-source
+                 get-cmdline-f))))
+    args))
+
+;; 初期化関数を定義
+(defun flymake-simple-make-gcc-init ()
+  (message "%s" (flymake-simple-make-gcc-init-impl
+                 'flymake-create-temp-inplace t t "Makefile"
+                 'flymake-get-make-gcc-cmdline))
+  (flymake-simple-make-gcc-init-impl
+   'flymake-create-temp-inplace t t "Makefile"
+   'flymake-get-make-gcc-cmdline))
+
+;; 拡張子 .c, .cpp, c++などのときに上記関数を利用する 要warning対応
+;; (add-to-list 'flymake-allowed-file-name-masks
+;;              ;;'("\\.\\(?:c\\(?:pp\\|xx\\|\\+\\+\\)?\\|CC\\)\\'"
+;;              '("\\.\\(cc\\|cpp\\|cxx\\|h\\|hpp\\)\\'"
+;;                flymake-simple-make-gcc-init))
 
 ;; ファイルが#!から始まる場合、+xをつけて保存する
 (add-hook 'after-save-hook
