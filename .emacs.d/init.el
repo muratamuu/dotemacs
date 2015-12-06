@@ -204,6 +204,9 @@
 ;; Command+dにanything-for-documentを割り当て
 (define-key global-map (kbd "C-c d") 'anything-for-document)
 
+;; anything-for-filesを割り当て
+(define-key global-map (kbd "C-c f") 'anything-for-files)
+
 ;; 行番号表示
 ;;(global-linum-mode t)
 
