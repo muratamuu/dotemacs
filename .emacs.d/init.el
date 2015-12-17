@@ -304,10 +304,10 @@
 (defface my-hl-line-face
   ;; 背景がdarkならば背景色を紺に
   '((((class color) (background dark))
-     (:background "NavyBlue" t))
+     (:background "DarkSlateBlue" t))
     ;; 背景色がlightならば背景色を緑に
     (((class color) (background light))
-     (:background "LightGoldenrodYellow" t))
+     (:background "#999999" t))
     (t (:bold t)))
   "hl-line's my-face")
 (setq hl-line-face 'my-hl-line-face)
