@@ -320,7 +320,10 @@
 (setq show-paren-style 'expression)
 ;; フェイスを変更する
 ;;(set-face-background 'show-paren-match-face nil)
-(set-face-underline-p 'show-paren-match-face "yellow")
+;;(set-face-underline-p 'show-paren-match-face "yellow")
+(set-face-attribute 'show-paren-match-face nil
+                    :background "#888800" :foreground nil
+                    :underline "#888800" :weight 'extra-bold)
 
 ;; カラム番号もモードラインに表示する
 (column-number-mode t)
