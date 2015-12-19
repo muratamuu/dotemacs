@@ -417,3 +417,7 @@
 
 ;; emacs-lisp-modeのフックをセット
 (add-hook 'emacs-lisp-mode-hook 'elisp-mode-hooks)
+
+;; scala mode 2
+;; M-x package-install RET scala-mode2
+(require 'scala-mode2)
