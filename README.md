@@ -34,8 +34,9 @@ $ mkdir backups conf elisp elpa public_repos
 - auto-installを導入  
 ```
 $ cd ~/.emacs.d/elisp
-$ curl -O http://www.emacswiki.org/emacs/download/auto-install.el
-M-x byte-compile-file RET ~/.emacs.d/elisp/auto-install.el RET
+$ curl -O https://www.emacswiki.org/emacs/download/auto-install.el
+$ emacs --batch -Q -f batch-byte-compile auto-install.el
+// M-x byte-compile-file RET ~/.emacs.d/elisp/auto-install.el RET
 ```
 
 - anythingを導入  
